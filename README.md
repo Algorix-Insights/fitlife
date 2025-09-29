@@ -1,3 +1,9 @@
+# fitlife
+
+Fitlife es un sistema integral de bienestar que permite a los usuarios gestionar entrenamientos y seguimiento nutricional. Realizado con NextJS y Supabase
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
