@@ -9,6 +9,7 @@ interface Pregunta6Props {
   totalPasos: number;
   onSiguiente: () => void;
   onVolver: () => void;
+  isSubmitting?: boolean;
 }
 
 export default function Pregunta6({
@@ -17,7 +18,8 @@ export default function Pregunta6({
   pasoActual,
   totalPasos,
   onSiguiente,
-  onVolver
+  onVolver,
+  isSubmitting = false
 }: Pregunta6Props) {
   const router = useRouter();
   
@@ -50,10 +52,8 @@ export default function Pregunta6({
   };
 
   const handleFinalizar = () => {
-    // Ejecutar la lógica de siguiente paso (guardar respuestas, etc.)
+    // Let the hook handle the submission and navigation
     onSiguiente();
-    // Redirigir al dashboard
-    router.push('/dashboard');
   };
 
   return (
@@ -114,13 +114,19 @@ export default function Pregunta6({
         <div className="mt-8">
           <button
             onClick={handleFinalizar}
-            disabled={respuestasSeleccionadas.length === 0}
+            disabled={respuestasSeleccionadas.length === 0 || isSubmitting}
             className="w-full bg-purple-1006 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-1008 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer"
           >
-            {respuestasSeleccionadas.length > 0 
-              ? `Finalizar (${respuestasSeleccionadas.length})`
-              : 'Finalizar'
-            }
+            {isSubmitting ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Guardando respuestas...
+              </div>
+            ) : (
+              respuestasSeleccionadas.length > 0 
+                ? `Finalizar (${respuestasSeleccionadas.length})`
+                : 'Finalizar'
+            )}
           </button>
         </div>
       </div>

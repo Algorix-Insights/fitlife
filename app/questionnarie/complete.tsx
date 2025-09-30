@@ -15,6 +15,7 @@ export default function EncuestaCompleta() {
     paso, 
     totalPasos, 
     respuestas, 
+    isSubmitting,
     siguientePaso, 
     pasoAtras,
     actualizarRespuesta 
@@ -91,9 +92,27 @@ export default function EncuestaCompleta() {
           totalPasos={6}
           onSiguiente={siguientePaso}
           onVolver={pasoAtras}
+          isSubmitting={isSubmitting}
         />
       );
     default:
-      return <div>Encuesta completada</div>;
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <h2 className="text-xl font-semibold text-gray-900">Guardando tu encuesta...</h2>
+                <p className="text-gray-600 mt-2">Por favor espera mientras procesamos tus respuestas</p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold text-green-600">¡Encuesta Completada!</h2>
+                <p className="text-gray-600 mt-2">Redirigiendo al dashboard...</p>
+              </>
+            )}
+          </div>
+        </div>
+      );
   }
 }

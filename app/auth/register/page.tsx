@@ -3,8 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/api/supabaseClient";
 
 export default function registerComponent() {
+  const router = useRouter();
+  
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -75,7 +79,7 @@ export default function registerComponent() {
       newErrors.password = "La contraseña es requerida";
     } else if (formData.password.length < 6) {
       newErrors.password = "La contraseña debe tener al menos 6 caracteres";
-    } else if (!/(?=.[a-z])(?=.[A-Z])(?=.*\d)/.test(formData.password)) {
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
       newErrors.password =
         "La contraseña debe contener mayúsculas, minúsculas y números";
     }
@@ -99,11 +103,48 @@ export default function registerComponent() {
     setIsLoading(true);
 
     try {
-      // conectar supa
-      console.log("Datos del registro:", formData);
+      // Step 1: Create user account with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
 
-      // Simulación de llamada api
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (authError) {
+        console.error("Error en registro:", authError);
+        alert(`Error en el registro: ${authError.message}`);
+        return;
+      }
+
+      if (!authData.user) {
+        alert("Error: No se pudo crear el usuario");
+        return;
+      }
+
+      // Check if email confirmation is required
+      if (authData.user && !authData.session) {
+        alert("¡Registro exitoso! Por favor, revisa tu email para confirmar tu cuenta antes de continuar.");
+      }
+
+      // Step 2: Create user profile with additional data in profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .insert({
+          id: authData.user.id, // Use the user ID from auth as profile ID
+          name: formData.username,
+          birthdate: formData.birthDate,
+          gender: formData.gender,
+        })
+        .select()
+        .single();
+
+      if (profileError) {
+        console.error("Error creando perfil:", profileError);
+        alert(`Error creando perfil: ${profileError.message}`);
+        return;
+      }
+      
+      // Redirect to questionnaire to complete onboarding
+      router.push("/questionnarie");
 
     } catch (error) {
       console.error("Error en registro:", error);
