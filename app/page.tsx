@@ -3,7 +3,7 @@
 export default function Global() {
   return (
     <div>
-     
+      <h1 className="bg-blue-500">Este es el global de fit life</h1>
     </div>
   );
 }
