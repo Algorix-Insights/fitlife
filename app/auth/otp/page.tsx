@@ -3,15 +3,18 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export default function VerificacionOTP() {
+  const supabase = createClientComponentClient();
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [timer, setTimer] = useState(60);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const params = useSearchParams();
+  const email = params.get("email") || "";
 
   // Manejar el timer para reenviar código
   useEffect(() => {
@@ -74,33 +77,37 @@ export default function VerificacionOTP() {
       return;
     }
 
+    const otpCode = otp.join("");
     setIsLoading(true);
 
     try {
-      // Simulación de verificación OTP
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: otpCode,
+        type: "email",
+      });
 
-      const otpCode = otp.join("");
-      console.log("Código OTP ingresado:", otpCode);
+      if (error) {
+        console.error("Error verificando OTP:", error.message);
+        alert("Código incorrecto o expirado");
+        return;
+      }
 
-      // Aquí conectarías con tu backend para verificar el OTP
-      // Si es exitoso, rediriges al dashboard
-      // router.push('/dashboard');
-
-      //alert("Código verificado exitosamente");
-
-    } catch (error) {
-      console.error("Error en verificación OTP:", error);
-      alert("Código incorrecto. Intenta nuevamente.");
+      console.log("Sesión iniciada:", data.session);
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Error inesperado:", err);
+      alert("Error al verificar el código");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleResendCode = () => {
-    if (timer === 0) {
+  // Reenviar código
+  const handleResendCode = async () => {
+    if (timer === 0 && email) {
       setTimer(60);
-      // Aquí iría la lógica para reenviar el código OTP
+      await supabase.auth.signInWithOtp({ email });
       alert("Se ha reenviado un nuevo código a tu correo");
     }
   };
@@ -124,10 +131,8 @@ export default function VerificacionOTP() {
               Verificación OTP
             </h2>
             <p className="mt-2 text-semibold text-gray-1009">
-              Hemos enviado un código de 6 dígitos a tu correo electrónico{" "}
-              <span className="font-bold text-purple-1006">
-                example@example.com
-              </span>
+              Hemos enviado un código de 6 dígitos a tu correo{" "}
+              <span className="font-bold text-purple-1006">{email}</span>
             </p>
           </div>
 
@@ -163,7 +168,6 @@ export default function VerificacionOTP() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  onClick={() => router.push("/dashboard")}
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-1006 transition duration-300 cursor-pointer ease-in-out hover:bg-purple-1007 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   
@@ -173,7 +177,7 @@ export default function VerificacionOTP() {
             </form>
 
             {/* Reenviar otp */}
-            {/* <div className="mt-6 text-center">
+            <div className="mt-6 text-center">
               <p className="text-sm text-gray-1009">
                 ¿No recibiste el código?{" "}
                 <button
@@ -188,7 +192,7 @@ export default function VerificacionOTP() {
                   {timer > 0 ? `Reenviar en ${timer}s` : "Reenviar código"}
                 </button>
               </p>
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
