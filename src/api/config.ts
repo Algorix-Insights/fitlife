@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import { ApiResponse, SupabaseError } from './types';
 
 // Configuración base para la API
@@ -9,15 +10,16 @@ export const API_CONFIG = {
   restURL: '/rest/v1',
 };
 
+// Exportar el cliente de Supabase para uso en servicios
+export { supabase };
 
-
-// Headers base para todas las requests
+// Headers base para todas las requests (mantenido para compatibilidad con requests manuales)
 export const getBaseHeaders = () => ({
   'Content-Type': 'application/json',
   'apikey': API_CONFIG.apiKey,
 });
 
-// Headers con autorización
+// Headers con autorización (mantenido para requests manuales)
 export const getAuthHeaders = () => {
   const token = getAccessToken();
   return {
@@ -44,8 +46,48 @@ export const removeAccessToken = (): void => {
   }
 };
 
-// Función helper para hacer requests
-export const makeRequest = async <T = any>(
+// Función helper para obtener la sesión actual de Supabase
+export const getCurrentSession = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session;
+};
+
+// Función helper para obtener el usuario actual
+export const getCurrentUser = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+};
+
+// Función helper para hacer requests con Supabase (recomendado)
+export const makeSupabaseRequest = async <T = unknown>(
+  operation: () => Promise<{ data: T | null; error: unknown }>
+): Promise<ApiResponse<T>> => {
+  try {
+    const { data, error } = await operation();
+    
+    return {
+      data: data || undefined,
+      error: error
+        ? {
+            error: (typeof error === 'object' && 'code' in error ? (error as any).code : 'supabase_error'),
+            message: (typeof error === 'object' && 'message' in error ? (error as any).message : 'Unknown error'),
+          }
+        : undefined,
+      status: error ? 400 : 200,
+    };
+  } catch (error) {
+    return {
+      error: { 
+        error: 'supabase_exception', 
+        message: error instanceof Error ? error.message : 'Unknown error' 
+      },
+      status: 500,
+    };
+  }
+};
+
+// Funciones legacy para requests manuales (mantenidas para compatibilidad)
+export const makeRequest = async <T = unknown>(
   url: string, 
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> => {
@@ -73,8 +115,7 @@ export const makeRequest = async <T = any>(
   }
 };
 
-// Función helper para requests autenticadas
-export const makeAuthenticatedRequest = async <T = any>(
+export const makeAuthenticatedRequest = async <T = unknown>(
   url: string, 
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> => {
