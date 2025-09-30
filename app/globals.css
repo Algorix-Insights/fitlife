@@ -2,8 +2,22 @@
 
 /**Colores*/
 @theme{
-  --color-primary: #ffffff;
-  --color-secondary: #c1ff1a;
+  /* colores morados fuertes */
+  --color-purple-1009: #2e3081;
+  --color-purple-10095: #1b1c4b;
+  --color-purple-1008: #3032a3;
+  --color-purple-1007: #383bca;
+  --color-purple-1006: #4649e5;
+/* colores morados bajitos*/
+  --color-purple-1003: #a5a7fc;
+  --color-purple-1002: #c7c8fe;
+  --color-purple-1001: #e0e1ff;
+  --color-purple-1000: #eeeeff;
+/*colores gris*/
+  --color-gray-1009: #383a42;
+  --color-gray-1002: #d8dbdf;
+  --color-gray-1003: #b6bac3;
+
 };
 
 
@@ -14,8 +28,11 @@
 };
 
 /**reseteo*/
-body{
+body {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  background-color: #eeeeff ;
+  width: 100%;
+  height: 100vh;
 }
