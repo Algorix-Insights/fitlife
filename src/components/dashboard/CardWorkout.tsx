@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Play, Dumbbell } from 'lucide-react';
+import PlansModal from '@/components/plans/plans-modal'; 
 
 const CardWorkout = () => {
     const progress = 35; 
@@ -52,10 +53,12 @@ const CardWorkout = () => {
                     </div>
                 </div>
 
-                <button className="bg-gradient-to-r from-[#383BCA] via-purple-500 to-indigo-600 w-full text-white px-6 py-2 rounded-full font-semibold flex items-center justify-center gap-2 text-center hover:bg-gray-100 transition-colors duration-200">
+                <PlansModal/>
+
+                {/* <button className="bg-gradient-to-r from-[#383BCA] via-purple-500 to-indigo-600 w-full text-white px-6 py-2 rounded-full font-semibold flex items-center justify-center gap-2 text-center hover:bg-gray-100 transition-colors duration-200">
                     <Play size={16} fill="currentColor" />
                     Comenzar
-                </button>
+                </button> */}
             </div>
         </div>
     );
