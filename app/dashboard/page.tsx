@@ -8,6 +8,7 @@ import CardWorkout from '@/components/dashboard/CardWorkout';
 import WorkoutSet from '@/components/dashboard/WorkoutSet';
 import Goals from '@/components/dashboard/Goals';
 import CardWorkoutDetails from '@/components/ui/CardWorkoutDetails';
+// import PopUpExamples from '@/components/ui/PopUpExamples'
 
 export default function DashboardPage() {
     const [userName, setUserName] = useState('Carlos');
@@ -16,7 +17,8 @@ export default function DashboardPage() {
     const [plans, setPlans] = useState(['bryan', 'chuc', 'zuri'])
 
     return (
-        <>
+        <>  
+            {/* <PopUpExamples/> */}
             <div className="grid grid-cols-1 lg:grid-cols-4 lg:grid-rows-[repeat(5,180px)] gap-6 p-6">
                 <div className="lg:col-span-4 h-full">
                     <Clock userName={userName} description={description} />
